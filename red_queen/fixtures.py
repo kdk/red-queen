@@ -124,6 +124,7 @@ class BenchmarkFixture:
         return runner
 
     def _adjust_num_runs(self, runner):
+        # Calculates the number of runs of function to take longer than self._min_time
         num_runs = 1
         while True:
             warmup_start = default_timer()
@@ -145,6 +146,9 @@ class BenchmarkFixture:
         runner = self._make_runner(function_to_benchmark, args, kwargs)
         duration, result = runner(None)
 
+        # If single run takes longer than _max_time, but less than 5 min, run 5 times.
+        # If single run takes longer than 5 min, run once,
+        # Otherwise, call adjust_num_runs to find number of rounds required to get above _min_time
         if duration >= self._max_time:
             if duration < 300:
                 for _ in range(5):
