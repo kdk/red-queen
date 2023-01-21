@@ -75,6 +75,9 @@ def _qiskit_pass_manager(layout_method, routing_method, coupling_map, seed_trans
 
 
 def run_qiskit_mapper(benchmark, layout_method, routing_method, coupling_map, path):
+    import qiskit
+    benchmark.tool_version = qiskit.__version__
+
     def _evaluate_quality(tqc):
         quality_stats = {}
         quality_stats["cx"] = 3 * tqc.count_ops().get("swap", 0)
@@ -86,6 +89,8 @@ def run_qiskit_mapper(benchmark, layout_method, routing_method, coupling_map, pa
 
 def run_tweedledum_mapper(benchmark, routing_method, coupling_map, path):
     """Runs one of tweedledum's mappers on a circuit."""
+    from importlib.metadata import version
+    benchmark.tool_version = version('tweedledum')
 
     circuit = Circuit.from_qasm_file(str(path))
     device = Device.from_edge_list(coupling_map)
@@ -109,6 +114,9 @@ def run_tweedledum_mapper(benchmark, routing_method, coupling_map, path):
         mapped_circuit = bridge_decomp(device, mapped_circuit)
 
 def run_tket_mapper(benchmark, layout_method, coupling_map, path):
+    import pytket
+    benchmark.tool_version = pytket.__version__
+
     device = Architecture(coupling_map)
     if layout_method == "line":
         placement = PlacementPass(LinePlacement(device))

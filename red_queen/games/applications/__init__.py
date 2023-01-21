@@ -35,6 +35,9 @@ backends = [
 def run_qiskit_circuit(
     benchmark, circuit, backend, optimization_level, shots, expected_counts, marginalize=None
 ):
+    import qiskit
+    benchmark.tool_version = qiskit.__version__
+
     def _evaluate_quality_metrics(tqc):
         quality_stats = {}
         quality_stats["depth"] = tqc.depth()

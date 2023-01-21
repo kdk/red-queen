@@ -41,6 +41,7 @@ class BenchmarkInfo:
             "id": self._id,
             "name": self.name,
             "tool": self.tool,
+            "tool_version": self.tool_version,
             "algorithm": self.algorithm,
             "stats": {
                 "timings": self._time_data, #dict((field, getattr(self, field)) for field in self._fields()),
@@ -95,6 +96,14 @@ class BenchmarkFixture:
     @algorithm.setter
     def algorithm(self, value):
         self.info.algorithm = value
+
+    @property
+    def tool_version(self):
+        return self.info.tool_version
+
+    @tool_version.setter
+    def tool_version(self, value):
+        self.info.tool_version = value
 
     def _make_runner(self, function_to_benchmark, args, kwargs):
         def runner(num_runs):
