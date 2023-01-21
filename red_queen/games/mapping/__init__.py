@@ -75,29 +75,38 @@ def _qiskit_pass_manager(layout_method, routing_method, coupling_map, seed_trans
 
 
 def run_qiskit_mapper(benchmark, layout_method, routing_method, coupling_map, path):
+    def _evaluate_quality(tqc):
+        quality_stats = {}
+        quality_stats["cx"] = 3 * tqc.count_ops().get("swap", 0)
+        return quality_stats
+
     circuit = QuantumCircuit.from_qasm_file(str(path))
     pm = _qiskit_pass_manager(layout_method, routing_method, coupling_map)
-    info, mapped_circuit = benchmark(pm.run, circuit)
-    info.quality_stats["cx"] = 3 * mapped_circuit.count_ops().get("swap", 0)
-
+    info, mapped_circuit = benchmark(_evaluate_quality, pm.run, circuit)
 
 def run_tweedledum_mapper(benchmark, routing_method, coupling_map, path):
     """Runs one of tweedledum's mappers on a circuit."""
+
     circuit = Circuit.from_qasm_file(str(path))
     device = Device.from_edge_list(coupling_map)
-    if routing_method == "jit":
-        info, [mapped_circuit, _] = benchmark(jit_map, device, circuit)
-    elif routing_method == "sabre":
-        info, [mapped_circuit, _] = benchmark(sabre_map, device, circuit)
-    elif routing_method == "bridge":
-        info, [mapped_circuit, _] = benchmark(bridge_map, device, circuit)
-        mapped_circuit = bridge_decomp(device, mapped_circuit)
-    swaps_cost = 0
-    for instruction in mapped_circuit:
-        if instruction.kind() == "std.swap":
-            swaps_cost += 2
-    info.quality_stats["cx"] = swaps_cost + len(mapped_circuit) - len(circuit)
 
+    def _evaluate_quality(result):
+        mapped_circuit, _ = result
+        swaps_cost = 0
+        for instruction in mapped_circuit:
+            if instruction.kind() == "std.swap":
+                swaps_cost += 2
+        quality_stats = {}
+        quality_stats["cx"] = swaps_cost + len(mapped_circuit) - len(circuit)
+        return quality_stats
+
+    if routing_method == "jit":
+        info, [mapped_circuit, _] = benchmark(_evaluate_quality, jit_map, device, circuit)
+    elif routing_method == "sabre":
+        info, [mapped_circuit, _] = benchmark(_evaluate_quality, sabre_map, device, circuit)
+    elif routing_method == "bridge":
+        info, [mapped_circuit, _] = benchmark(_evaluate_quality, bridge_map, device, circuit)
+        mapped_circuit = bridge_decomp(device, mapped_circuit)
 
 def run_tket_mapper(benchmark, layout_method, coupling_map, path):
     device = Architecture(coupling_map)
@@ -106,10 +115,15 @@ def run_tket_mapper(benchmark, layout_method, coupling_map, path):
     elif layout_method == "graph":
         placement = PlacementPass(GraphPlacement(device))
     mapping = RoutingPass(device)
+
+    def _evaluate_quality(mapped_circuit):
+        quality_stats = {}
+        quality_stats["cx"] = 3 * len(mapped_circuit.ops_of_type(OpType.SWAP))
+        return quality_stats
+
     info, mapped_circuit = benchmark(
-        _tket_map_and_route, circuit_from_qasm(path), placement, mapping
+        _evaluate_quality, _tket_map_and_route, circuit_from_qasm(path), placement, mapping
     )
-    info.quality_stats["cx"] = 3 * len(mapped_circuit.ops_of_type(OpType.SWAP))
 
 
 def _tket_map_and_route(circuit, placement, mapping):

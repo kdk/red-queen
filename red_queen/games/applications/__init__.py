@@ -35,29 +35,34 @@ backends = [
 def run_qiskit_circuit(
     benchmark, circuit, backend, optimization_level, shots, expected_counts, marginalize=None
 ):
+    def _evaluate_quality_metrics(tqc):
+        quality_stats = {}
+        quality_stats["depth"] = tqc.depth()
+        quality_stats["size"] = tqc.size()
+
+        num_2q = sum(1 for inst, qargs, cargs in tqc.data if len(qargs) == 2)
+        num_1q = sum(1 for inst, qargs, cargs in tqc.data if len(qargs) == 1)
+
+        quality_stats["xi"] = num_2q / (num_1q + num_2q)
+
+        if marginalize:
+
+            counts = marginal_distribution(
+                backend.run(tqc, shots=shots, seed_simulator=123456789).result().get_counts(),
+                marginalize,
+            )
+        else:
+            counts = backend.run(tqc, shots=shots, seed_simulator=123456789).result().get_counts()
+
+        quality_stats["fidelity"] = hellinger_fidelity(counts, expected_counts)
+
+        return quality_stats
+
     info, tqc = benchmark(
+        _evaluate_quality_metrics,
         transpile,
         circuit,
         backend,
         optimization_level=optimization_level,
         seed_transpiler=4242424242,
     )
-    info.quality_stats["depth"] = tqc.depth()
-    info.quality_stats["size"] = tqc.size()
-    op_count = tqc.count_ops()
-    num_2q = op_count.get("cx", 0)
-    if "melbourne" in backend.name() or "rochester" in backend.name():
-        num_1q = op_count.get("u1", 0) + op_count.get("u2", 0) + op_count.get("u3", 0)
-    else:
-        num_1q = op_count.get("sx", 0) + op_count.get("x", 0) + op_count.get("rz", 0)
-    info.quality_stats["xi"] = num_2q / (num_1q + num_2q)
-    if marginalize:
-
-        counts = marginal_distribution(
-            backend.run(tqc, shots=shots, seed_simulator=123456789).result().get_counts(),
-            marginalize,
-        )
-    else:
-        counts = backend.run(tqc, shots=shots, seed_simulator=123456789).result().get_counts()
-
-    info.quality_stats["fidelity"] = hellinger_fidelity(counts, expected_counts)

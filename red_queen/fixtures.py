@@ -30,10 +30,11 @@ class BenchmarkInfo:
         self.tool = self._tool_name(node.name)
         self.algorithm = "default"
         self._time_data = []
-        self.quality_stats = {}
+        self.quality_stats = []
 
-    def update(self, duration):
+    def update(self, duration, quality_stat):
         self._time_data.append(duration)
+        self.quality_stats.append(quality_stat)
 
     def as_dict(self):
         result = {
@@ -42,7 +43,7 @@ class BenchmarkInfo:
             "tool": self.tool,
             "algorithm": self.algorithm,
             "stats": {
-                "timing": dict((field, getattr(self, field)) for field in self._fields()),
+                "timings": self._time_data, #dict((field, getattr(self, field)) for field in self._fields()),
                 "quality": self.quality_stats,
             },
         }
@@ -106,10 +107,10 @@ class BenchmarkFixture:
                 if num_runs:
                     r = range(num_runs)
                     start = default_timer()
-                    for _ in r:
-                        function_to_benchmark(*args, **kwargs)
+                    results = [function_to_benchmark(*args, **kwargs)
+                               for _ in r]
                     end = default_timer()
-                    return end - start, None
+                    return end - start, results
                 else:
                     start = default_timer()
                     result = function_to_benchmark(*args, **kwargs)
@@ -140,24 +141,25 @@ class BenchmarkFixture:
                 num_runs *= 10
         return duration, num_runs
 
-    def __call__(self, function_to_benchmark, *args, **kwargs):
+    def __call__(self, quality_gauge, function_to_benchmark, *args, **kwargs):
         runner = self._make_runner(function_to_benchmark, args, kwargs)
         duration, result = runner(None)
 
         if duration >= self._max_time:
             if duration < 300:
                 for _ in range(5):
-                    round_duration, _ = runner(None)
-                    self.info.update(round_duration)
+                    round_duration, result = runner(None)
+                    self.info.update(round_duration, quality_gauge(result))
             else:
-                self.info.update(duration)
+                self.info.update(duration, quality_gauge(result))
             return self.info, result
 
         duration, num_runs = self._adjust_num_runs(runner)
         rounds = int(ceil(self._max_time / duration))
         rounds = min(rounds, sys.maxsize)
         for _ in range(rounds):
-            round_duration, _ = runner(num_runs)
-            self.info.update(round_duration / num_runs)
+            round_duration, results = runner(num_runs)
+            for result in results:
+                self.info.update(round_duration / num_runs, quality_gauge(result))
 
         return self.info, result
