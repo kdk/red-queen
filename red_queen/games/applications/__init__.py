@@ -39,17 +39,15 @@ def run_qiskit_circuit(
     benchmark.tool_version = qiskit.__version__
 
     def _evaluate_quality_metrics(tqc):
+        from math
         quality_stats = {}
         quality_stats["depth"] = tqc.depth()
         quality_stats["size"] = tqc.size()
-
-        num_2q = sum(1 for inst, qargs, cargs in tqc.data if len(qargs) == 2)
-        num_1q = sum(1 for inst, qargs, cargs in tqc.data if len(qargs) == 1)
-
-        quality_stats["xi"] = num_2q / (num_1q + num_2q)
+        quality_stats["num_2q"] = sum(1 for inst, qargs, cargs in tqc.data if len(qargs) == 2)
+        quality_stats["num_1q"] = sum(1 for inst, qargs, cargs in tqc.data if len(qargs) == 1)
+        quality_stats["xi"] = quality_stats["num_2q"] / (quality_stats["num_1q"] + quality_stats["num_2q"])
 
         if marginalize:
-
             counts = marginal_distribution(
                 backend.run(tqc, shots=shots, seed_simulator=123456789).result().get_counts(),
                 marginalize,
@@ -59,6 +57,16 @@ def run_qiskit_circuit(
 
         quality_stats["fidelity"] = hellinger_fidelity(counts, expected_counts)
 
+        # from math import exp
+        # stqc = transpile(tqc, backend, optimization_level=0, scheduling_method='alap')
+        # quality_stats["eps"] = reduce(operator.mul, (
+        #     1-backend.properties().gate_error(name, qargs) if name != 'delay'
+        #     else (exp(-1 * instr.duration * backend.confiruation().dt / be.properties().t1(qars[0]))
+        #           *exp(-1 * instr.duration * backend.confiruation().dt / be.properties().t2(qargs[0]))
+        #           ) if (op_start_time != 0 and op_start_time + instr.duration < stqc.duration)
+        #     else 1
+        #     for ((instr, qargs, cargs), op_start_time) in zip(stqc.data, stqc.op_start_times)
+        # ))
         return quality_stats
 
     info, tqc = benchmark(

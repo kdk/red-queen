@@ -80,7 +80,10 @@ def run_qiskit_mapper(benchmark, layout_method, routing_method, coupling_map, pa
 
     def _evaluate_quality(tqc):
         quality_stats = {}
-        quality_stats["cx"] = 3 * tqc.count_ops().get("swap", 0)
+        #quality_stats["cx"] = 3 * tqc.count_ops().get("swap", 0)
+        utqc = tqc.decompose(['swap'])
+        quality_stats["cx"] = tqc.count_ops().get("cx", 0)
+        quality_stats["depth"] = tqc.depth()
         return quality_stats
 
     circuit = QuantumCircuit.from_qasm_file(str(path))
@@ -95,6 +98,8 @@ def run_tweedledum_mapper(benchmark, routing_method, coupling_map, path):
     circuit = Circuit.from_qasm_file(str(path))
     device = Device.from_edge_list(coupling_map)
 
+    from tweedledum.qiskit import to_qiskit
+
     def _evaluate_quality(result):
         mapped_circuit, _ = result
         swaps_cost = 0
@@ -103,6 +108,11 @@ def run_tweedledum_mapper(benchmark, routing_method, coupling_map, path):
                 swaps_cost += 2
         quality_stats = {}
         quality_stats["cx"] = swaps_cost + len(mapped_circuit) - len(circuit)
+        tqc = to_qiskit(mapped_circuit, 'gatelist')
+        utqc = tqc.decompose(['swap'])
+
+        quality_stats["depth"] = utqc.depth()
+
         return quality_stats
 
     if routing_method == "jit":
