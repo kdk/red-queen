@@ -91,7 +91,11 @@ def bench_qiskit_dj(benchmark, optimization_level, backend, case):
         benchmark.name = "Deutsch Jozsa - Constant Oracle"
         expected_counts = {str("0" * NUM): shots}
         circ = QuantumCircuit.from_qasm_file(os.path.join(QASM_DIR, "dj_constant.qasm"))
-    benchmark.algorithm = f"Optimization level: {optimization_level} on {backend.name()}"
+    benchmark.algorithm = (
+        f"Optimization level: {optimization_level} "
+        f"on {backend.name()} "
+        f"({backend.processor_type['family']} {backend.processor_type['revision']}{backend.processor_type.get('segment', '')}"
+    )
     run_qiskit_circuit(benchmark, circ, backend, optimization_level, shots, expected_counts)
 
 

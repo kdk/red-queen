@@ -87,6 +87,10 @@ def run_qiskit_mapper(benchmark, layout_method, routing_method, coupling_map, pa
         return quality_stats
 
     circuit = QuantumCircuit.from_qasm_file(str(path))
+
+    if circuit.num_qubits > len(set(_ for edge in coupling_map for _ in edge)):
+        return
+
     pm = _qiskit_pass_manager(layout_method, routing_method, coupling_map)
     info, mapped_circuit = benchmark(_evaluate_quality, pm.run, circuit)
 
@@ -96,6 +100,10 @@ def run_tweedledum_mapper(benchmark, routing_method, coupling_map, path):
     benchmark.tool_version = version('tweedledum')
 
     circuit = Circuit.from_qasm_file(str(path))
+
+    if circuit.num_qubits() > len(set(_ for edge in coupling_map for _ in edge)):
+        return
+
     device = Device.from_edge_list(coupling_map)
 
     from tweedledum.qiskit import to_qiskit
@@ -139,8 +147,13 @@ def run_tket_mapper(benchmark, layout_method, coupling_map, path):
         quality_stats["cx"] = 3 * len(mapped_circuit.ops_of_type(OpType.SWAP))
         return quality_stats
 
+    circuit = circuit_from_qasm(path)
+
+    if circuit.n_qubits > len(set(_ for edge in coupling_map for _ in edge)):
+        return
+
     info, mapped_circuit = benchmark(
-        _evaluate_quality, _tket_map_and_route, circuit_from_qasm(path), placement, mapping
+        _evaluate_quality, _tket_map_and_route, circuit, placement, mapping
     )
 
 

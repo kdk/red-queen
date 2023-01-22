@@ -114,7 +114,11 @@ def bench_qiskit_hs(benchmark, optimization_level, backend):
     benchmark.name = "Hidden Shift"
     circ = QuantumCircuit.from_qasm_file(os.path.join(QASM_DIR, "hs.qasm"))
 
-    benchmark.algorithm = f"Optimization level: {optimization_level} on {backend.name()}"
+    benchmark.algorithm = (
+        f"Optimization level: {optimization_level} "
+        f"on {backend.name()} "
+        f"({backend.processor_type['family']} {backend.processor_type['revision']}{backend.processor_type.get('segment', '')}"
+    )
     run_qiskit_circuit(benchmark, circ, backend, optimization_level, shots, expected_counts)
 
 

@@ -8,28 +8,31 @@ import pytest
 
 from qiskit.compiler import transpile
 from qiskit.result import marginal_distribution
-from qiskit.providers.fake_provider import (
-    FakeWashington,
-    FakeBrooklyn,
-    FakeRochester,
-    FakeMontreal,
-    FakeCairo,
-    FakeToronto,
-    FakeGuadalupe,
-    FakeMelbourne,
-)
+from qiskit.providers.fake_provider import FakeProvider
 from qiskit.quantum_info.analysis import hellinger_fidelity
 
-backends = [
-    FakeWashington(),
-    FakeBrooklyn(),
-    FakeRochester(),
-    FakeMontreal(),
-    FakeCairo(),
-    FakeToronto(),
-    FakeGuadalupe(),
-    FakeMelbourne(),
-]
+backends = []
+provider = FakeProvider()
+for name in (
+    'fake_sherbrooke',  # Eagle r3
+    'fake_washington',  # Eagle r1
+    'fake_ithaca',      # Hummingbird r3
+    'fake_brooklyn',    # Hummingbird r2
+    'fake_montreal',    # Falcon r4
+    # 'fake_toronto',    # Falcon r4
+    'fake_lima',        # Falcon r4T
+    'fake_guadalupe',   # Falcon r4P
+    'fake_geneva',      # Falcon r8
+    'fake_mumbai',      # Falcon r5.10 # KDK bug, this is listed in the backend as r5.1
+    'fake_manila',      # Falcon r5.11L
+    'fake_jakarta',     # Falcon r5.11H
+    'fake_cairo',       # Falcon r5.11
+):
+    try:
+        be = provider.get_backend(name)
+        backends.append(be)
+    except:
+        pass
 
 
 def run_qiskit_circuit(
@@ -37,6 +40,9 @@ def run_qiskit_circuit(
 ):
     import qiskit
     benchmark.tool_version = qiskit.__version__
+
+    if circuit.num_qubits > len(set(_ for edge in backend.configuration().coupling_map for _ in edge)):
+        return
 
     def _evaluate_quality_metrics(tqc):
         from math
