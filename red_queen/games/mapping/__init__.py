@@ -145,6 +145,7 @@ def run_tket_mapper(benchmark, layout_method, coupling_map, path):
     def _evaluate_quality(mapped_circuit):
         quality_stats = {}
         quality_stats["cx"] = 3 * len(mapped_circuit.ops_of_type(OpType.SWAP))
+        quality_stats["depth"] = mapped_circuit.depth()
         return quality_stats
 
     circuit = circuit_from_qasm(path)
