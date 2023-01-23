@@ -31,11 +31,11 @@ class BenchmarkInfo:
         self.algorithm = "default"
         self.hardware_description = None
         self._time_data = []
-        self.quality_stats = []
+        self.quality_stats = defaultdict(list)
 
     def update(self, duration, quality_stat):
         self._time_data.append(duration)
-        self.quality_stats.append(quality_stat)
+        self.quality_stats[k].append(v)
 
     def as_dict(self):
         result = {
