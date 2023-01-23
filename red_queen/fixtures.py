@@ -35,7 +35,8 @@ class BenchmarkInfo:
 
     def update(self, duration, quality_stat):
         self._time_data.append(duration)
-        self.quality_stats[k].append(v)
+        for k, v in quality_stat.items():
+            self.quality_stats[k].append(v)
 
     def as_dict(self):
         result = {
