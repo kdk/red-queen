@@ -12,10 +12,10 @@ from .benchmarks import queko_qasm, queko_coupling
 
 
 @pytest.mark.qiskit
-@pytest.mark.parametrize("layout_method", ["dense", "sabre"])
-@pytest.mark.parametrize("routing_method", ["sabre", "stochastic"])
+@pytest.mark.parametrize("layout_roting_method", [("dense", "stochastic"), ("sabre", "sabre")])
 @pytest.mark.parametrize("qasm", queko_qasm)
-def bench_qiskit(benchmark, layout_method, routing_method, qasm) -> None:
+def bench_qiskit(benchmark, layout_routing_method, qasm) -> None:
+    layout_method, routing_method = layout_routing_method
     benchmark.name = qasm.name
     benchmark.algorithm = f"{layout_method} + {routing_method}"
     # This is really annoying:
