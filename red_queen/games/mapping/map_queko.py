@@ -17,6 +17,7 @@ from .benchmarks import queko_qasm, queko_coupling
 def bench_qiskit(benchmark, layout_routing_method, qasm) -> None:
     layout_method, routing_method = layout_routing_method
     benchmark.name = qasm.name
+    benchmark.hardware_description = benchmark.name[:5]
     benchmark.algorithm = f"{layout_method} + {routing_method}"
     # This is really annoying:
     coupling_map = []
@@ -30,6 +31,7 @@ def bench_qiskit(benchmark, layout_routing_method, qasm) -> None:
 @pytest.mark.parametrize("qasm", queko_qasm)
 def bench_tweedledum(benchmark, qasm) -> None:
     benchmark.name = qasm.name
+    benchmark.hardware_description = benchmark.name[:5]
     benchmark.algorithm = "ApprxSatPlacer + LazyRouter"
     coupling_map = queko_coupling[benchmark.name[:5]]
     run_tweedledum_mapper(benchmark, "jit", coupling_map, qasm)
@@ -40,6 +42,7 @@ def bench_tweedledum(benchmark, qasm) -> None:
 @pytest.mark.parametrize("qasm", queko_qasm)
 def bench_tket(benchmark, layout_method, qasm) -> None:
     benchmark.name = qasm.name
+    benchmark.hardware_description = benchmark.name[:5]
     benchmark.algorithm = f"{layout_method} Placement + Routing"
     coupling_map = queko_coupling[benchmark.name[:5]]
     run_tket_mapper(benchmark, layout_method, coupling_map, qasm)
