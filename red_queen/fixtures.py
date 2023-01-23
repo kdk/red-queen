@@ -10,6 +10,7 @@ import sys
 import gc
 import statistics
 
+from collections import defaultdict
 from functools import cached_property
 from math import ceil
 from timeit import default_timer
