@@ -12,7 +12,7 @@ from .benchmarks import queko_qasm, queko_coupling
 
 
 @pytest.mark.qiskit
-@pytest.mark.parametrize("layout_roting_method", [("dense", "stochastic"), ("sabre", "sabre")])
+@pytest.mark.parametrize("layout_routing_method", [("dense", "stochastic"), ("sabre", "sabre")])
 @pytest.mark.parametrize("qasm", queko_qasm)
 def bench_qiskit(benchmark, layout_routing_method, qasm) -> None:
     layout_method, routing_method = layout_routing_method
