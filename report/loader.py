@@ -16,6 +16,7 @@ def load_benchmarks(dir_or_file, filter_by=None):
             if filter_by and benchmark["tool"] != filter_by:
                 continue
             benchmark["storage"] = None
+            benchmark["python_verison"] = data["machine_info"]["python_version"]
             yield benchmark
     else:
         paths = list(dir_or_file.glob("**/*.json"))
@@ -32,6 +33,7 @@ def load_benchmarks(dir_or_file, filter_by=None):
                 if filter_by and benchmark["tool"] != filter_by:
                     continue
                 benchmark["storage"] = path.name
+                benchmark["python_verison"] = data["machine_info"]["python_version"]
                 yield benchmark
 
 
