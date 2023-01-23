@@ -43,9 +43,9 @@ def bench_qiskit(benchmark, layout_routing_method, backend, qasm) -> None:
     layout_method, routing_method = layout_routing_method
     benchmark.name = qasm.name
     processor_type = backend.configuration().processor_type
-    benchmark.algorithm = (
-        f"{layout_method}/{routing_method} "
-        f"on {backend.name()} "
+    benchmark.algorithm = f"{layout_method}/{routing_method}"
+    benchmark.hardware_description = (
+        f"{backend.name()} "
         f"({processor_type['family']} {processor_type['revision']}{processor_type.get('segment', '')})"
     )
     run_qiskit_mapper(
@@ -63,9 +63,9 @@ def bench_qiskit(benchmark, layout_routing_method, backend, qasm) -> None:
 def bench_tweedledum(benchmark, routing_method, backend, qasm) -> None:
     benchmark.name = qasm.name
     processor_type = backend.configuration().processor_type
-    benchmark.algorithm = (
-        f"{routing_method} "
-        f"on {backend.name()} "
+    benchmark.algorithm = f"{routing_method}"
+    benchmark.hardware_description = (
+        f"{backend.name()} "
         f"({processor_type['family']} {processor_type['revision']}{processor_type.get('segment', '')})"
     )
     run_tweedledum_mapper(benchmark, routing_method, backend.configuration().coupling_map, qasm)
@@ -77,9 +77,9 @@ def bench_tweedledum(benchmark, routing_method, backend, qasm) -> None:
 def bench_tket(benchmark, layout_method, backend, qasm) -> None:
     benchmark.name = qasm.name
     processor_type = backend.configuration().processor_type
-    benchmark.algorithm = (
-        f"{layout_method} Placement + Routing "
-        f"on {backend.name()} "
+    benchmark.algorithm = f"{layout_method} Placement + Routing "
+    benchmark.hardware_description = (
+        f"{backend.name()} "
         f"({processor_type['family']} {processor_type['revision']}{processor_type.get('segment', '')})"
     )
     coupling_map = backend.configuration().coupling_map

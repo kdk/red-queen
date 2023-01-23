@@ -52,9 +52,9 @@ def bench_qiskit_ipe(benchmark, optimization_level, backend):
     expected_counts = {SECRET_STRING: shots}
     benchmark.name = "Iterative Phase Estimation"
     circ = QuantumCircuit.from_qasm_file(os.path.join(QASM_DIR, "ipe.qasm"))
-    benchmark.algorithm = (
-        f"Optimization level: {optimization_level} "
-        f"on {backend.name()} "
+    benchmark.algorithm = f"Optimization level: {optimization_level}"
+    benchmark.hardware_description = (
+        f"{backend.name()} "
         f"({backend.processor_type['family']} {backend.processor_type['revision']}{backend.processor_type.get('segment', '')})"
     )
     run_qiskit_circuit(benchmark, circ, backend, optimization_level, shots, expected_counts)
