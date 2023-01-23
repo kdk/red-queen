@@ -46,6 +46,7 @@ class BenchmarkInfo:
             "tool": self.tool,
             "tool_version": self.tool_version,
             "algorithm": self.algorithm,
+            "hardware_description": self.hardware_description,
             "stats": {
                 "timings": self._time_data, #dict((field, getattr(self, field)) for field in self._fields()),
                 "quality": self.quality_stats,
