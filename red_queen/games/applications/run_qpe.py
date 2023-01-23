@@ -103,7 +103,7 @@ def bench_qiskit_bv(benchmark, optimization_level, backend):
     benchmark.algorithm = (
         f"Optimization level: {optimization_level} "
         f"on {backend.name()} "
-        f"({backend.processor_type['family']} {backend.processor_type['revision']}{backend.processor_type.get('segment', '')}"
+        f"({backend.processor_type['family']} {backend.processor_type['revision']}{backend.processor_type.get('segment', '')})"
     )
     run_qiskit_circuit(benchmark, circ, backend, optimization_level, shots, expected_counts)
 
