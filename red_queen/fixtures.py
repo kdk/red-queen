@@ -102,6 +102,14 @@ class BenchmarkFixture:
         self.info.algorithm = value
 
     @property
+    def hardware_description(self):
+        return self.info.hardware_description
+
+    @hardware_description.setter
+    def hardware_description(self, value):
+        self.info.hardware_description = value
+
+    @property
     def tool_version(self):
         return self.info.tool_version
 
