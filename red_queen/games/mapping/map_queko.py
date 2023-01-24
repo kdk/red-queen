@@ -18,7 +18,7 @@ def bench_qiskit(benchmark, layout_routing_method, qasm) -> None:
     layout_method, routing_method = layout_routing_method
     benchmark.name = qasm.name
     benchmark.hardware_description = benchmark.name[:5]
-    benchmark.algorithm = f"{layout_method} + {routing_method}"
+    benchmark.algorithm = f"{layout_method}/{routing_method}"
     # This is really annoying:
     coupling_map = []
     for pair in queko_coupling[benchmark.name[:5]]:
