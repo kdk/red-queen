@@ -29,6 +29,7 @@ class BenchmarkInfo:
         self._id = node._nodeid
         self.name = None
         self.tool = self._tool_name(node.name)
+        self.tool_version = None
         self.algorithm = "default"
         self.hardware_description = None
         self._time_data = []
