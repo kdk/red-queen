@@ -32,7 +32,8 @@ def bench_qiskit(benchmark, layout_routing_method, qasm) -> None:
 def bench_tweedledum(benchmark, qasm) -> None:
     benchmark.name = qasm.name
     benchmark.hardware_description = benchmark.name[:5]
-    benchmark.algorithm = "ApprxSatPlacer + LazyRouter"
+    # benchmark.algorithm = "ApprxSatPlacer + LazyRouter"
+    benchmark.algorithm = "ApprxSat/Lazy"
     coupling_map = queko_coupling[benchmark.name[:5]]
     run_tweedledum_mapper(benchmark, "jit", coupling_map, qasm)
 
@@ -43,6 +44,7 @@ def bench_tweedledum(benchmark, qasm) -> None:
 def bench_tket(benchmark, layout_method, qasm) -> None:
     benchmark.name = qasm.name
     benchmark.hardware_description = benchmark.name[:5]
-    benchmark.algorithm = f"{layout_method} Placement + Routing"
+    # benchmark.algorithm = f"{layout_method} Placement + Routing"
+    benchmark.algorithm = layout_method
     coupling_map = queko_coupling[benchmark.name[:5]]
     run_tket_mapper(benchmark, layout_method, coupling_map, qasm)

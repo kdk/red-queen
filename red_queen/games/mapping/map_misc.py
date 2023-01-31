@@ -77,7 +77,8 @@ def bench_tweedledum(benchmark, routing_method, backend, qasm) -> None:
 def bench_tket(benchmark, layout_method, backend, qasm) -> None:
     benchmark.name = qasm.name
     processor_type = backend.configuration().processor_type
-    benchmark.algorithm = f"{layout_method} Placement + Routing "
+    # benchmark.algorithm = f"{layout_method} Placement + Routing "
+    benchmark.algorithm = f"{layout_method}"
     benchmark.hardware_description = (
         f"{backend.name()} "
         f"({backend.configuration().num_qubits}Q {processor_type['family']} {processor_type['revision']}{processor_type.get('segment', '')})"
